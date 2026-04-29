@@ -1,15 +1,21 @@
-import "./styles.css";
-
-const GOOGLE_SHEETS_CONFIG = {
-  appScriptUrl:
-    "https://script.google.com/macros/s/AKfycbxaAnZUlR39wOF65WvF16671LJKcqAZO4grcJ6DQrVcA0tguKccCrZZQRKCoihXXG2-mw/exec"
+const APP_CONFIG = {
+  googleSheets: {
+    appScriptUrl:
+      "https://script.google.com/macros/s/AKfycby-9jPRR1xEInbGEHWrYusSKn2fuMG9JB1HxVcT0muxezPoO77dbtIyK6gqcG0KAbg3DQ/exec"
+  },
+  access: {
+    // Barreira leve para curiosos. Como roda no cliente, nao deve ser tratada como seguranca forte.
+    password: "m@rsaude"
+  }
 };
 
 const STORAGE_KEY = "pressao-arterial-state-v2";
 const SEND_TIMEOUT_MS = 8000;
 const MAX_PENDING_PREVIEW = 4;
+const AUTH_STORAGE_KEY = "pressao-arterial-authenticated";
 
 let deferredInstallPrompt = null;
+let appInitialized = false;
 
 const steps = [
   {
@@ -96,6 +102,11 @@ const state = {
 };
 
 const dom = {
+  authShell: document.querySelector("#authShell"),
+  appShell: document.querySelector("#appShell"),
+  authForm: document.querySelector("#authForm"),
+  passwordInput: document.querySelector("#passwordInput"),
+  authError: document.querySelector("#authError"),
   wizardForm: document.querySelector("#wizardForm"),
   installButton: document.querySelector("#installButton"),
   heroCard: document.querySelector("#heroCard"),
@@ -135,6 +146,77 @@ const dom = {
 
 function getCurrentStep() {
   return steps[state.currentStepIndex];
+}
+
+function isAuthenticated() {
+  return sessionStorage.getItem(AUTH_STORAGE_KEY) === "true";
+}
+
+function setAuthenticated(value) {
+  if (value) {
+    sessionStorage.setItem(AUTH_STORAGE_KEY, "true");
+  } else {
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  }
+}
+
+function showApp() {
+  dom.authShell.hidden = true;
+  dom.appShell.hidden = false;
+}
+
+function showAuth() {
+  dom.appShell.hidden = true;
+  dom.authShell.hidden = false;
+  window.setTimeout(() => {
+    dom.passwordInput.focus();
+  }, 40);
+}
+
+function initializeApp() {
+  if (appInitialized) {
+    return;
+  }
+
+  appInitialized = true;
+
+  const restoredState = loadState();
+  renderStep();
+
+  if (
+    restoredState &&
+    (
+      state.company ||
+      state.currentPatient.cpf ||
+      state.currentPatient.patientName ||
+      state.currentPatient.systolic ||
+      state.currentPatient.diastolic ||
+      state.pendingQueue.length > 0 ||
+      state.deviceRecords.length > 0
+    )
+  ) {
+    showStatus("success", "Dados restaurados com sucesso neste aparelho após recarregar a página.");
+  }
+
+  registerServiceWorker();
+  flushQueue({ showErrors: false });
+}
+
+function handleAuthSubmit(event) {
+  event.preventDefault();
+
+  if (dom.passwordInput.value === APP_CONFIG.access.password) {
+    dom.authError.textContent = "";
+    setAuthenticated(true);
+    dom.passwordInput.value = "";
+    showApp();
+    initializeApp();
+    return;
+  }
+
+  dom.authError.textContent = "Senha incorreta.";
+  dom.passwordInput.focus();
+  dom.passwordInput.select();
 }
 
 function onlyDigits(value) {
@@ -492,7 +574,7 @@ function getIsoDateTime() {
 }
 
 function hasSheetsConfig() {
-  return Boolean(GOOGLE_SHEETS_CONFIG.appScriptUrl);
+  return Boolean(APP_CONFIG.googleSheets.appScriptUrl);
 }
 
 function withTimeout(promise, timeoutMs) {
@@ -509,12 +591,12 @@ function withTimeout(promise, timeoutMs) {
 async function submitRecord(record) {
   if (!hasSheetsConfig()) {
     throw new Error(
-      "Configure o GOOGLE_SHEETS_CONFIG em app.js com a URL publicada do Google Apps Script."
+      "Configure o APP_CONFIG.googleSheets em app.js com a URL publicada do Google Apps Script."
     );
   }
 
   const response = await withTimeout(
-    fetch(GOOGLE_SHEETS_CONFIG.appScriptUrl, {
+    fetch(APP_CONFIG.googleSheets.appScriptUrl, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -914,6 +996,7 @@ function retryQueue() {
   flushQueue({ showErrors: true });
 }
 
+dom.authForm.addEventListener("submit", handleAuthSubmit);
 dom.stepInput.addEventListener("input", updateInputValue);
 dom.wizardForm.addEventListener("submit", handleSubmit);
 dom.backButton.addEventListener("click", goBack);
@@ -950,10 +1033,9 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-const restoredState = loadState();
-renderStep();
-if (restoredState && (state.company || state.currentPatient.cpf || state.currentPatient.patientName || state.currentPatient.systolic || state.currentPatient.diastolic || state.pendingQueue.length > 0 || state.deviceRecords.length > 0)) {
-  showStatus("success", "Dados restaurados com sucesso neste aparelho após recarregar a página.");
+if (isAuthenticated()) {
+  showApp();
+  initializeApp();
+} else {
+  showAuth();
 }
-registerServiceWorker();
-flushQueue({ showErrors: false });

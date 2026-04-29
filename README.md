@@ -12,6 +12,15 @@ npm start
 
 Depois abra `http://localhost:4173`.
 
+## Protecao de acesso
+
+- O app tem uma senha fixa de entrada para evitar acesso casual por curiosos.
+- Senha atual: `m@rsaude`
+- Essa protecao e propositalmente simples e roda no cliente.
+- Ela nao deve ser tratada como seguranca forte ou controle real de autenticacao.
+- A inicializacao dos dados locais e o reenvio da fila so acontecem depois do desbloqueio.
+- Para trocar a senha, edite `APP_CONFIG.access.password` em [app.js](/Users/felipelima/work/pressao-arterial/app.js).
+
 ## Build para publicacao
 
 ```bash
@@ -30,7 +39,7 @@ Depois abra `http://localhost:4174`.
 
 ## Como configurar o envio para Google Sheets
 
-Edite o objeto `GOOGLE_SHEETS_CONFIG` em [app.js](/Users/felipelima/work/pressao-arterial/app.js).
+Edite o objeto `APP_CONFIG.googleSheets` em [app.js](/Users/felipelima/work/pressao-arterial/app.js).
 
 Voce precisa preencher:
 
@@ -56,24 +65,28 @@ function doPost(e) {
   var data = JSON.parse(e.postData.contents);
   var properties = PropertiesService.getDocumentProperties();
   var recordKey = "record:" + data.recordId;
+  var cpfValue = String(data.cpf || "").replace(/\D/g, "");
 
   if (data.recordId && properties.getProperty(recordKey)) {
     return createJsonResponse({ ok: true, duplicate: true, recordId: data.recordId });
   }
 
   var targetRow = sheet.getLastRow() + 1;
-  var rowValues = [[
+  var beforeCpfValues = [[
     data.dataHora,
-    data.empresa,
-    String(data.cpf || ""),
+    data.empresa
+  ]];
+  var afterCpfValues = [[
     data.nomePaciente,
     data.pressaoSistolica,
     data.pressaoDiastolica,
     data.resumo
   ]];
 
+  sheet.getRange(targetRow, 1, 1, beforeCpfValues[0].length).setValues(beforeCpfValues);
   sheet.getRange(targetRow, 3).setNumberFormat("@");
-  sheet.getRange(targetRow, 1, 1, rowValues[0].length).setValues(rowValues);
+  sheet.getRange(targetRow, 3).setValue(cpfValue);
+  sheet.getRange(targetRow, 4, 1, afterCpfValues[0].length).setValues(afterCpfValues);
 
   if (data.recordId) {
     properties.setProperty(recordKey, new Date().toISOString());
@@ -83,7 +96,7 @@ function doPost(e) {
 }
 ```
 
-Depois de atualizar o codigo, atualize a implantacao do Web App e mantenha a URL publicada em `GOOGLE_SHEETS_CONFIG.appScriptUrl`.
+Depois de atualizar o codigo, atualize a implantacao do Web App e mantenha a URL publicada em `APP_CONFIG.googleSheets.appScriptUrl`.
 
 ## Fila e reenvio
 
@@ -93,7 +106,7 @@ Depois de atualizar o codigo, atualize a implantacao do Web App e mantenha a URL
 - O usuario pode tocar em `Enviar pendentes` depois, ou o app reenviara automaticamente quando a conexao voltar.
 - O `recordId` impede duplicidade na planilha caso o mesmo cadastro seja reenviado.
 - O CPF e exibido com mascara na tela, mas e salvo e enviado apenas com numeros.
-- O CPF e gravado no Google Sheets como texto, preservando zeros a esquerda.
+- O CPF e gravado no Google Sheets em uma escrita dedicada como texto, preservando zeros a esquerda com mais confiabilidade.
 - Se a pagina for recarregada, o rascunho atual, a fila pendente e os registros locais sao restaurados automaticamente no mesmo aparelho.
 - O app agora espera uma resposta JSON de confirmacao do servidor antes de tirar um cadastro da fila.
 

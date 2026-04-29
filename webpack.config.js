@@ -7,7 +7,7 @@ module.exports = (env, argv) => {
   const isProduction = argv.mode === "production";
 
   return {
-    entry: path.resolve(__dirname, "app.js"),
+    entry: path.resolve(__dirname, "main.js"),
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "assets/app.js",
@@ -24,7 +24,7 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, "index.html"),
+        template: path.resolve(__dirname, "index.template.html"),
         inject: "body"
       }),
       new MiniCssExtractPlugin({

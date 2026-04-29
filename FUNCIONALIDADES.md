@@ -6,6 +6,20 @@ O app foi criado para coletar dados de pressao arterial de forma simples, rapida
 
 O fluxo principal e guiado, mostrando um campo por vez, para reduzir erros de digitacao e acelerar o preenchimento durante o atendimento.
 
+## Protecao Inicial
+
+O app possui uma senha fixa de entrada para evitar acesso casual por curiosos.
+
+Senha atual: `m@rsaude`
+
+Importante:
+
+- essa barreira e leve
+- ela ajuda no uso operacional do dia a dia
+- ela nao substitui autenticacao forte
+- o app so inicializa os dados locais e a fila pendente depois do desbloqueio
+- a senha fica centralizada em `APP_CONFIG.access.password` em [app.js](/Users/felipelima/work/pressao-arterial/app.js)
+
 ## Fluxo de Uso
 
 1. O usuario informa o nome da empresa.
