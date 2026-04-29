@@ -14,11 +14,12 @@ let deferredInstallPrompt = null;
 const steps = [
   {
     key: "company",
-    label: "Configuracao inicial",
-    title: "Qual e o nome da empresa?",
+    label: "Configuração inicial",
+    title: "Qual é o nome da empresa?",
     fieldLabel: "Empresa",
-    hint: "Esse nome sera reaproveitado para todos os pacientes ate voce trocar.",
+    hint: "Esse nome será reaproveitado para todos os pacientes até você trocar.",
     buttonLabel: "Salvar empresa",
+    placeholder: "Ex.: Mar Saúde",
     autocomplete: "organization",
     inputMode: "text",
     autocapitalize: "words",
@@ -29,8 +30,9 @@ const steps = [
     label: "Paciente",
     title: "Digite o CPF do paciente.",
     fieldLabel: "CPF",
-    hint: "Usamos mascara automatica e validacao completa do CPF.",
+    hint: "Usamos máscara automática e validação completa do CPF.",
     buttonLabel: "Continuar",
+    placeholder: "000.000.000-00",
     autocomplete: "off",
     inputMode: "numeric",
     autocapitalize: "off",
@@ -41,8 +43,9 @@ const steps = [
     label: "Paciente",
     title: "Agora informe o nome do paciente.",
     fieldLabel: "Nome do paciente",
-    hint: "Use o nome completo para facilitar a identificacao.",
+    hint: "Use o nome completo para facilitar a identificação.",
     buttonLabel: "Continuar",
+    placeholder: "Ex.: Maria da Silva",
     autocomplete: "name",
     inputMode: "text",
     autocapitalize: "words",
@@ -50,11 +53,12 @@ const steps = [
   },
   {
     key: "systolic",
-    label: "Pressao arterial",
-    title: "Qual foi a pressao sistolica?",
-    fieldLabel: "Sistolica",
-    hint: "Somente numeros. Exemplo: 120",
+    label: "Pressão arterial",
+    title: "Qual foi a pressão sistólica?",
+    fieldLabel: "Sistólica",
+    hint: "É o número de cima da pressão. Digite somente números.",
     buttonLabel: "Continuar",
+    placeholder: "Ex.: 120",
     autocomplete: "off",
     inputMode: "numeric",
     autocapitalize: "off",
@@ -62,11 +66,12 @@ const steps = [
   },
   {
     key: "diastolic",
-    label: "Pressao arterial",
-    title: "Qual foi a pressao diastolica?",
-    fieldLabel: "Diastolica",
-    hint: "Somente numeros. Exemplo: 80",
+    label: "Pressão arterial",
+    title: "Qual foi a pressão diastólica?",
+    fieldLabel: "Diastólica",
+    hint: "É o número de baixo da pressão. Digite somente números.",
     buttonLabel: "Enviar",
+    placeholder: "Ex.: 80",
     autocomplete: "off",
     inputMode: "numeric",
     autocapitalize: "off",
@@ -185,12 +190,12 @@ function validateStep(stepKey, rawValue) {
   }
 
   if (stepKey === "company" && value.length < 2) {
-    return "Digite um nome de empresa valido.";
+    return "Digite um nome de empresa válido.";
   }
 
   if (stepKey === "cpf") {
     if (!isValidCpf(value)) {
-      return "CPF invalido. Revise os numeros informados.";
+      return "CPF inválido. Revise os números informados.";
     }
   }
 
@@ -201,7 +206,7 @@ function validateStep(stepKey, rawValue) {
   if (stepKey === "systolic" || stepKey === "diastolic") {
     const numericValue = Number(onlyDigits(value));
     if (!numericValue || numericValue < 50 || numericValue > 280) {
-      return "Informe uma pressao em numeros, dentro de uma faixa valida.";
+      return "Informe uma pressão em números, dentro de uma faixa válida.";
     }
   }
 
@@ -209,7 +214,7 @@ function validateStep(stepKey, rawValue) {
     const systolic = Number(state.currentPatient.systolic);
     const diastolic = Number(onlyDigits(value));
     if (diastolic >= systolic) {
-      return "A diastolica deve ser menor que a sistolica.";
+      return "A diastólica deve ser menor que a sistólica.";
     }
   }
 
@@ -326,14 +331,14 @@ function renderPendingList() {
     const emptyItem = document.createElement("li");
     emptyItem.innerHTML = `
       <div class="pending-name">Fila limpa</div>
-      <div class="pending-meta">Os proximos cadastros entram aqui se faltar internet ou confirmacao do servidor.</div>
+      <div class="pending-meta">Os próximos cadastros entram aqui se faltar internet ou confirmação do servidor.</div>
     `;
     dom.pendingList.appendChild(emptyItem);
     dom.pendingPreviewTitle.textContent = "Nenhum cadastro aguardando envio";
     return;
   }
 
-  dom.pendingPreviewTitle.textContent = `${state.pendingQueue.length} aguardando confirmacao`;
+  dom.pendingPreviewTitle.textContent = `${state.pendingQueue.length} aguardando confirmação`;
 
   state.pendingQueue.slice(0, MAX_PENDING_PREVIEW).forEach((record) => {
     const item = document.createElement("li");
@@ -355,21 +360,21 @@ function renderPendingList() {
 }
 
 function updateSessionCards() {
-  dom.companyValue.textContent = state.company || "Nao definida";
+  dom.companyValue.textContent = state.company || "Não definida";
   dom.submittedCount.textContent = String(state.submittedCount);
   dom.queueCount.textContent = String(state.pendingQueue.length);
   dom.deviceCount.textContent = String(state.deviceRecords.length);
 
   if (state.isFlushingQueue) {
     dom.queueStatus.textContent = `Enviando ${state.pendingQueue.length} pendente(s)...`;
-    dom.queueHint.textContent = "Voce pode continuar cadastrando enquanto a fila e reenviada.";
+    dom.queueHint.textContent = "Você pode continuar cadastrando enquanto a fila é reenviada.";
     dom.retryQueueButton.disabled = true;
     dom.sharePendingCsvButton.disabled = true;
     dom.downloadPendingCsvButton.disabled = true;
   } else if (state.pendingQueue.length > 0) {
     dom.queueStatus.textContent = `${state.pendingQueue.length} cadastro(s) aguardando envio`;
     dom.queueHint.textContent =
-      "Os registros ficam salvos neste aparelho ate o reenvio completar com sucesso.";
+      "Os registros ficam salvos neste aparelho até o reenvio completar com sucesso.";
     dom.retryQueueButton.disabled = false;
     dom.sharePendingCsvButton.disabled = false;
     dom.downloadPendingCsvButton.disabled = false;
@@ -385,14 +390,14 @@ function updateSessionCards() {
   if (state.deviceRecords.length > 0) {
     const lastSavedRecord = state.deviceRecords[state.deviceRecords.length - 1];
     dom.exportStatus.textContent = `${state.deviceRecords.length} registro(s) prontos para exportar`;
-    dom.exportHint.textContent = `Ultimo salvo no celular: ${lastSavedRecord.nomePaciente} • ${lastSavedRecord.resumo}`;
+    dom.exportHint.textContent = `Último salvo no celular: ${lastSavedRecord.nomePaciente} • ${lastSavedRecord.resumo}`;
     dom.shareCsvButton.disabled = false;
     dom.copyCsvButton.disabled = false;
     dom.downloadCsvButton.disabled = false;
   } else {
     dom.exportStatus.textContent = "Nenhum CSV gerado ainda";
     dom.exportHint.textContent =
-      "Compartilhe um CSV com todos os registros salvos no celular por WhatsApp, Slack, Mensagens ou outro app.";
+      "Compartilhe um CSV com todos os registros salvos no celular por WhatsApp, Slack, Mensagens ou outro aplicativo.";
     dom.shareCsvButton.disabled = true;
     dom.copyCsvButton.disabled = true;
     dom.downloadCsvButton.disabled = true;
@@ -401,7 +406,7 @@ function updateSessionCards() {
   if (!state.lastSubmission) {
     dom.lastPatient.textContent = "Nenhum paciente ainda";
     dom.lastResult.textContent =
-      "Depois do envio, o app volta automaticamente para o CPF do proximo paciente.";
+      "Depois do envio, o aplicativo volta automaticamente para o CPF do próximo paciente.";
   } else {
     dom.lastPatient.textContent = state.lastSubmission.patientName;
     dom.lastResult.textContent = `${state.lastSubmission.cpf} • ${state.lastSubmission.summary}`;
@@ -448,7 +453,7 @@ function renderStep() {
   dom.stepInput.autocomplete = step.autocomplete;
   dom.stepInput.inputMode = step.inputMode;
   dom.stepInput.autocapitalize = step.autocapitalize;
-  dom.stepInput.placeholder = step.fieldLabel;
+  dom.stepInput.placeholder = step.placeholder || step.fieldLabel;
   dom.progressBar.style.width = `${((state.currentStepIndex + 1) / steps.length) * 100}%`;
   dom.fieldError.textContent = "";
 
@@ -520,7 +525,7 @@ async function submitRecord(record) {
   );
 
   if (!response.ok) {
-    throw new Error("O servidor nao confirmou o recebimento. O cadastro ficou salvo na fila.");
+    throw new Error("O servidor não confirmou o recebimento. O cadastro ficou salvo na fila.");
   }
 
   const payload = await response.json();
@@ -631,12 +636,12 @@ function escapeCsvValue(value) {
 
 function buildCsvContent(records = state.deviceRecords) {
   const headers = [
-    "Data Hora",
+    "Data e Hora",
     "Empresa",
     "CPF",
     "NomePaciente",
-    "Pressao Sistolica",
-    "Pressao Diastolica",
+    "Pressão Sistólica",
+    "Pressão Diastólica",
     "Resumo Sisto/Diast"
   ];
 
@@ -666,7 +671,7 @@ function buildCsvFile(records = state.deviceRecords, filenamePrefix = "pressao-a
 
 async function copyCsv(records = state.deviceRecords, successMessage = "CSV copiado.") {
   if (records.length === 0) {
-    showStatus("error", "Ainda nao ha registros salvos para copiar.");
+    showStatus("error", "Ainda não há registros salvos para copiar.");
     return;
   }
 
@@ -674,13 +679,13 @@ async function copyCsv(records = state.deviceRecords, successMessage = "CSV copi
     await navigator.clipboard.writeText(buildCsvContent(records));
     showStatus("success", successMessage);
   } catch (error) {
-    showStatus("error", "Nao foi possivel copiar o CSV neste aparelho.");
+    showStatus("error", "Não foi possível copiar o CSV neste aparelho.");
   }
 }
 
 async function shareCsv(records = state.deviceRecords, options = {}) {
   if (records.length === 0) {
-    showStatus("error", "Ainda nao ha registros salvos para compartilhar.");
+    showStatus("error", "Ainda não há registros salvos para compartilhar.");
     return;
   }
 
@@ -689,21 +694,21 @@ async function shareCsv(records = state.deviceRecords, options = {}) {
   try {
     if (navigator.canShare && navigator.canShare({ files: [csvFile] })) {
       await navigator.share({
-        title: options.title || "Pressao arterial",
+        title: options.title || "Pressão arterial",
         text: options.text || "CSV com os registros salvos no celular.",
         files: [csvFile]
       });
       showStatus(
         "success",
         options.successMessage ||
-          "Compartilhamento aberto. Escolha WhatsApp, Slack, Mensagens ou outro app."
+          "Compartilhamento aberto. Escolha WhatsApp, Slack, Mensagens ou outro aplicativo."
       );
       return;
     }
 
     if (navigator.share) {
       await navigator.share({
-        title: options.title || "Pressao arterial",
+        title: options.title || "Pressão arterial",
         text: buildCsvContent(records)
       });
       showStatus(
@@ -716,14 +721,14 @@ async function shareCsv(records = state.deviceRecords, options = {}) {
     await copyCsv(records, options.copySuccessMessage || "CSV copiado para compartilhamento manual.");
   } catch (error) {
     if (error?.name !== "AbortError") {
-      showStatus("error", "Nao foi possivel compartilhar agora. O CSV continua salvo para tentar de novo.");
+      showStatus("error", "Não foi possível compartilhar agora. O CSV continua salvo para tentar de novo.");
     }
   }
 }
 
 function downloadCsv(records = state.deviceRecords, filenamePrefix = "pressao-arterial") {
   if (records.length === 0) {
-    showStatus("error", "Ainda nao ha registros salvos para exportar.");
+    showStatus("error", "Ainda não há registros salvos para exportar.");
     return;
   }
 
@@ -740,7 +745,7 @@ function downloadCsv(records = state.deviceRecords, filenamePrefix = "pressao-ar
 function shareAllRecords() {
   return shareCsv(state.deviceRecords, {
     filenamePrefix: "pressao-arterial",
-    title: "Pressao arterial",
+    title: "Pressão arterial",
     text: "CSV com todos os registros salvos no celular.",
     successMessage: "Compartilhamento do CSV completo aberto."
   });
@@ -749,8 +754,8 @@ function shareAllRecords() {
 function sharePendingRecords() {
   return shareCsv(state.pendingQueue, {
     filenamePrefix: "pressao-arterial-pendentes",
-    title: "Pressao arterial pendentes",
-    text: "CSV com os registros pendentes de confirmacao.",
+    title: "Pressão arterial pendentes",
+    text: "CSV com os registros pendentes de confirmação.",
     successMessage: "Compartilhamento dos pendentes aberto.",
     copySuccessMessage: "Pendentes copiados para compartilhamento manual."
   });
@@ -766,7 +771,7 @@ function downloadPendingRecords() {
 
 async function installApp() {
   if (!deferredInstallPrompt) {
-    showStatus("error", "A instalacao nao esta disponivel agora neste navegador.");
+    showStatus("error", "A instalação não está disponível agora neste navegador.");
     return;
   }
 
@@ -871,7 +876,7 @@ dom.retryQueueButton.addEventListener("click", retryQueue);
 dom.copyCsvButton.addEventListener("click", () =>
   copyCsv(
     state.deviceRecords,
-    "CSV completo copiado. Agora voce pode colar no WhatsApp, Slack, e-mail ou Mensagens."
+    "CSV completo copiado. Agora você pode colar no WhatsApp, Slack, e-mail ou Mensagens."
   )
 );
 dom.shareCsvButton.addEventListener("click", shareAllRecords);
@@ -888,7 +893,7 @@ window.addEventListener("beforeinstallprompt", (event) => {
 window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   dom.installButton.hidden = true;
-  showStatus("success", "App instalado com sucesso neste aparelho.");
+  showStatus("success", "Aplicativo instalado com sucesso neste aparelho.");
 });
 window.addEventListener("beforeunload", persistSession);
 window.addEventListener("pagehide", persistSession);
@@ -901,7 +906,7 @@ document.addEventListener("visibilitychange", () => {
 const restoredState = loadState();
 renderStep();
 if (restoredState && (state.company || state.currentPatient.cpf || state.currentPatient.patientName || state.currentPatient.systolic || state.currentPatient.diastolic || state.pendingQueue.length > 0 || state.deviceRecords.length > 0)) {
-  showStatus("success", "Dados restaurados com sucesso neste aparelho apos recarregar a pagina.");
+  showStatus("success", "Dados restaurados com sucesso neste aparelho após recarregar a página.");
 }
 registerServiceWorker();
 flushQueue({ showErrors: false });
