@@ -10,7 +10,7 @@ module.exports = (env, argv) => {
     entry: path.resolve(__dirname, "app.js"),
     output: {
       path: path.resolve(__dirname, "dist"),
-      filename: isProduction ? "assets/app.[contenthash].js" : "assets/app.js",
+      filename: "assets/app.js",
       clean: true
     },
     devtool: isProduction ? "source-map" : "eval-source-map",
@@ -28,7 +28,7 @@ module.exports = (env, argv) => {
         inject: "body"
       }),
       new MiniCssExtractPlugin({
-        filename: isProduction ? "assets/app.[contenthash].css" : "assets/app.css"
+        filename: "assets/app.css"
       }),
       new CopyPlugin({
         patterns: [

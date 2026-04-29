@@ -106,6 +106,14 @@ Depois de atualizar o codigo, atualize a implantacao do Web App e mantenha a URL
 - O projeto inclui `manifest.webmanifest`, icones e `service-worker.js`.
 - Em navegadores compativeis, o botao `Instalar app` aparece automaticamente.
 - Depois de instalado, o app abre em tela cheia e mantem os arquivos basicos em cache para uso mais confiavel no celular.
+- O app nao depende de fontes externas, entao a interface continua abrindo offline.
+
+## Uso offline
+
+- O app abre e funciona offline para coleta de dados.
+- Empresa, rascunho atual, fila pendente e historico local continuam disponiveis sem internet.
+- Quando a conexao voltar, o usuario pode reenviar os pendentes para o Google Sheets.
+- Sem internet, o unico ponto que fica adiado e a confirmacao do envio ao Sheets.
 
 ## Colunas esperadas
 
