@@ -137,12 +137,17 @@ const dom = {
   copyCsvButton: document.querySelector("#copyCsvButton"),
   downloadCsvButton: document.querySelector("#downloadCsvButton"),
   clearLocalDataButton: document.querySelector("#clearLocalDataButton"),
+  confirmOverlay: document.querySelector("#confirmOverlay"),
+  confirmCancelButton: document.querySelector("#confirmCancelButton"),
+  confirmAcceptButton: document.querySelector("#confirmAcceptButton"),
   lastPatient: document.querySelector("#lastPatient"),
   lastResult: document.querySelector("#lastResult"),
   statusCard: document.querySelector("#statusCard"),
   resetCompanyButton: document.querySelector("#resetCompanyButton"),
   completionTemplate: document.querySelector("#completionTemplate")
 };
+
+let pendingConfirmAction = null;
 
 function getCurrentStep() {
   return steps[state.currentStepIndex];
@@ -171,6 +176,30 @@ function showAuth() {
   window.setTimeout(() => {
     dom.passwordInput.focus();
   }, 40);
+}
+
+function openConfirmDialog(action) {
+  pendingConfirmAction = action;
+  dom.confirmOverlay.hidden = false;
+  window.setTimeout(() => {
+    dom.confirmCancelButton.focus();
+  }, 40);
+}
+
+function closeConfirmDialog() {
+  pendingConfirmAction = null;
+  dom.confirmOverlay.hidden = true;
+}
+
+function confirmPendingAction() {
+  if (!pendingConfirmAction) {
+    closeConfirmDialog();
+    return;
+  }
+
+  const action = pendingConfirmAction;
+  closeConfirmDialog();
+  action();
 }
 
 function initializeApp() {
@@ -963,32 +992,26 @@ function clearLocalData() {
     return;
   }
 
-  const confirmed = window.confirm(
-    "Isso vai apagar empresa, rascunho atual, fila pendente e histórico salvo neste aparelho. Deseja continuar?"
-  );
+  openConfirmDialog(() => {
+    state.company = "";
+    state.currentStepIndex = 0;
+    state.currentPatient = {
+      cpf: "",
+      patientName: "",
+      systolic: "",
+      diastolic: ""
+    };
+    state.deviceRecords = [];
+    state.pendingQueue = [];
+    state.isFlushingQueue = false;
+    state.submittedCount = 0;
+    state.lastSubmission = null;
 
-  if (!confirmed) {
-    return;
-  }
-
-  state.company = "";
-  state.currentStepIndex = 0;
-  state.currentPatient = {
-    cpf: "",
-    patientName: "",
-    systolic: "",
-    diastolic: ""
-  };
-  state.deviceRecords = [];
-  state.pendingQueue = [];
-  state.isFlushingQueue = false;
-  state.submittedCount = 0;
-  state.lastSubmission = null;
-
-  localStorage.removeItem(STORAGE_KEY);
-  clearStatus();
-  renderStep();
-  showStatus("success", "Cache local limpo com sucesso neste aparelho.");
+    localStorage.removeItem(STORAGE_KEY);
+    clearStatus();
+    renderStep();
+    showStatus("success", "Cache local limpo com sucesso neste aparelho.");
+  });
 }
 
 function retryQueue() {
@@ -1002,6 +1025,8 @@ dom.wizardForm.addEventListener("submit", handleSubmit);
 dom.backButton.addEventListener("click", goBack);
 dom.resetCompanyButton.addEventListener("click", resetCompany);
 dom.retryQueueButton.addEventListener("click", retryQueue);
+dom.confirmCancelButton.addEventListener("click", closeConfirmDialog);
+dom.confirmAcceptButton.addEventListener("click", confirmPendingAction);
 dom.copyCsvButton.addEventListener("click", () =>
   copyCsv(
     state.deviceRecords,
@@ -1030,6 +1055,16 @@ window.addEventListener("pagehide", persistSession);
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     persistSession();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (dom.confirmOverlay.hidden) {
+    return;
+  }
+
+  if (event.key === "Escape") {
+    closeConfirmDialog();
   }
 });
 

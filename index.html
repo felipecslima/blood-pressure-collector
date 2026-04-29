@@ -201,6 +201,28 @@
         <p id="completionMessage"></p>
       </div>
     </template>
+
+    <div class="confirm-overlay" id="confirmOverlay" hidden>
+      <section
+        class="confirm-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmTitle"
+        aria-describedby="confirmMessage"
+      >
+        <p class="eyebrow">Confirmação</p>
+        <h3 id="confirmTitle">Limpar cache local?</h3>
+        <p class="confirm-copy" id="confirmMessage">
+          Isso vai apagar empresa, rascunho atual, fila pendente e histórico salvo neste aparelho.
+        </p>
+        <div class="actions">
+          <button type="button" class="ghost-button" id="confirmCancelButton">Cancelar</button>
+          <button type="button" class="primary-button danger-button" id="confirmAcceptButton">
+            Sim, limpar
+          </button>
+        </div>
+      </section>
+    </div>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

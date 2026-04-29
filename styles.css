@@ -73,6 +73,39 @@ input {
   padding: 1.4rem;
 }
 
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(25, 26, 63, 0.48);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.confirm-dialog {
+  width: min(100%, 28rem);
+  border-radius: 1.75rem;
+  padding: 1.4rem;
+  background: var(--surface-strong);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow);
+}
+
+.confirm-dialog h3 {
+  margin: 0.45rem 0 0;
+  font-size: clamp(1.45rem, 6vw, 2rem);
+  line-height: 1.05;
+}
+
+.confirm-copy {
+  margin: 0.8rem 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .auth-title {
   margin: 1rem 0 0;
   font-family:
@@ -331,6 +364,10 @@ input {
   background: linear-gradient(90deg, var(--primary) 0%, var(--primary-soft) 100%);
   color: white;
   box-shadow: 0 10px 26px rgba(25, 26, 63, 0.18);
+}
+
+.danger-button {
+  background: linear-gradient(90deg, #cc4252 0%, #a62333 100%);
 }
 
 .ghost-button {
