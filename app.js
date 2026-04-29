@@ -125,6 +125,7 @@ const dom = {
   shareCsvButton: document.querySelector("#shareCsvButton"),
   copyCsvButton: document.querySelector("#copyCsvButton"),
   downloadCsvButton: document.querySelector("#downloadCsvButton"),
+  clearLocalDataButton: document.querySelector("#clearLocalDataButton"),
   lastPatient: document.querySelector("#lastPatient"),
   lastResult: document.querySelector("#lastResult"),
   statusCard: document.querySelector("#statusCard"),
@@ -863,6 +864,51 @@ function resetCompany() {
   resetPatientFlow();
 }
 
+function clearLocalData() {
+  const hasDataToClear =
+    Boolean(state.company) ||
+    Boolean(state.currentPatient.cpf) ||
+    Boolean(state.currentPatient.patientName) ||
+    Boolean(state.currentPatient.systolic) ||
+    Boolean(state.currentPatient.diastolic) ||
+    state.pendingQueue.length > 0 ||
+    state.deviceRecords.length > 0 ||
+    state.submittedCount > 0 ||
+    Boolean(state.lastSubmission);
+
+  if (!hasDataToClear) {
+    showStatus("success", "Não há cache local para limpar.");
+    return;
+  }
+
+  const confirmed = window.confirm(
+    "Isso vai apagar empresa, rascunho atual, fila pendente e histórico salvo neste aparelho. Deseja continuar?"
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  state.company = "";
+  state.currentStepIndex = 0;
+  state.currentPatient = {
+    cpf: "",
+    patientName: "",
+    systolic: "",
+    diastolic: ""
+  };
+  state.deviceRecords = [];
+  state.pendingQueue = [];
+  state.isFlushingQueue = false;
+  state.submittedCount = 0;
+  state.lastSubmission = null;
+
+  localStorage.removeItem(STORAGE_KEY);
+  clearStatus();
+  renderStep();
+  showStatus("success", "Cache local limpo com sucesso neste aparelho.");
+}
+
 function retryQueue() {
   clearStatus();
   flushQueue({ showErrors: true });
@@ -881,6 +927,7 @@ dom.copyCsvButton.addEventListener("click", () =>
 );
 dom.shareCsvButton.addEventListener("click", shareAllRecords);
 dom.downloadCsvButton.addEventListener("click", downloadAllRecords);
+dom.clearLocalDataButton.addEventListener("click", clearLocalData);
 dom.sharePendingCsvButton.addEventListener("click", sharePendingRecords);
 dom.downloadPendingCsvButton.addEventListener("click", downloadPendingRecords);
 dom.installButton.addEventListener("click", installApp);

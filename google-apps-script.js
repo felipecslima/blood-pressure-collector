@@ -18,15 +18,19 @@ function doPost(e) {
     return createJsonResponse({ ok: true, duplicate: true, recordId: data.recordId });
   }
 
-  sheet.appendRow([
+  var targetRow = sheet.getLastRow() + 1;
+  var rowValues = [[
     data.dataHora,
     data.empresa,
-    data.cpf,
+    String(data.cpf || ""),
     data.nomePaciente,
     data.pressaoSistolica,
     data.pressaoDiastolica,
     data.resumo
-  ]);
+  ]];
+
+  sheet.getRange(targetRow, 3).setNumberFormat("@");
+  sheet.getRange(targetRow, 1, 1, rowValues[0].length).setValues(rowValues);
 
   if (data.recordId) {
     properties.setProperty(recordKey, new Date().toISOString());

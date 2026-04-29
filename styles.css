@@ -267,7 +267,8 @@ input {
 
 .primary-button,
 .ghost-button,
-.link-button {
+.link-button,
+.danger-link-button {
   border: 0;
   cursor: pointer;
 }
@@ -356,6 +357,14 @@ input {
 .link-button {
   background: transparent;
   color: var(--primary);
+  font-weight: 800;
+  padding: 0;
+}
+
+.danger-link-button {
+  margin-top: 1rem;
+  background: transparent;
+  color: var(--danger);
   font-weight: 800;
   padding: 0;
 }

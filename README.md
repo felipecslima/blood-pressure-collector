@@ -61,15 +61,19 @@ function doPost(e) {
     return createJsonResponse({ ok: true, duplicate: true, recordId: data.recordId });
   }
 
-  sheet.appendRow([
+  var targetRow = sheet.getLastRow() + 1;
+  var rowValues = [[
     data.dataHora,
     data.empresa,
-    data.cpf,
+    String(data.cpf || ""),
     data.nomePaciente,
     data.pressaoSistolica,
     data.pressaoDiastolica,
     data.resumo
-  ]);
+  ]];
+
+  sheet.getRange(targetRow, 3).setNumberFormat("@");
+  sheet.getRange(targetRow, 1, 1, rowValues[0].length).setValues(rowValues);
 
   if (data.recordId) {
     properties.setProperty(recordKey, new Date().toISOString());
@@ -89,6 +93,7 @@ Depois de atualizar o codigo, atualize a implantacao do Web App e mantenha a URL
 - O usuario pode tocar em `Enviar pendentes` depois, ou o app reenviara automaticamente quando a conexao voltar.
 - O `recordId` impede duplicidade na planilha caso o mesmo cadastro seja reenviado.
 - O CPF e exibido com mascara na tela, mas e salvo e enviado apenas com numeros.
+- O CPF e gravado no Google Sheets como texto, preservando zeros a esquerda.
 - Se a pagina for recarregada, o rascunho atual, a fila pendente e os registros locais sao restaurados automaticamente no mesmo aparelho.
 - O app agora espera uma resposta JSON de confirmacao do servidor antes de tirar um cadastro da fila.
 
