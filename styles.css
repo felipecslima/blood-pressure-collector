@@ -1,0 +1,395 @@
+:root {
+  --bg: #f4f7fb;
+  --bg-accent: #dfe7f4;
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-strong: #ffffff;
+  --text: #191a3f;
+  --muted: #66708c;
+  --line: rgba(25, 26, 63, 0.1);
+  --primary: #191a3f;
+  --primary-soft: #2e3f73;
+  --highlight: #e33d8f;
+  --highlight-soft: #63c7df;
+  --success: #117a57;
+  --danger: #b3261e;
+  --shadow: 0 18px 48px rgba(25, 26, 63, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Manrope", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(99, 199, 223, 0.18), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(227, 61, 143, 0.2), transparent 20%),
+    linear-gradient(180deg, #f8fbff 0%, var(--bg-accent) 100%);
+  color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(100%, 32rem);
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
+}
+
+.hero-card,
+.form-card,
+.summary-card,
+.status-card,
+.queue-card,
+.pending-list-card,
+.export-card,
+.history-card {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow);
+}
+
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2rem;
+  padding: 1.4rem;
+  margin-top: 0.75rem;
+  background:
+    linear-gradient(135deg, rgba(25, 26, 63, 0.97) 0%, rgba(38, 50, 104, 0.98) 100%);
+  color: #fff;
+}
+
+.hero-card.is-hidden {
+  display: none;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-chip,
+.completion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.hero-card h1,
+.completion-stack h3 {
+  margin: 0.9rem 0 0;
+  font-family: "Instrument Serif", serif;
+  font-size: clamp(2rem, 8vw, 3.3rem);
+  line-height: 0.95;
+  font-weight: 400;
+}
+
+.hero-card p,
+.completion-stack p,
+.history-copy,
+.field-hint,
+.summary-label,
+.eyebrow,
+.field-error {
+  color: var(--muted);
+}
+
+.hero-card .hero-chip,
+.hero-card h1,
+.hero-card p {
+  color: #ffffff;
+}
+
+.hero-card p {
+  margin: 0.9rem 0 0;
+  max-width: 18rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.install-button {
+  margin-top: 1rem;
+  min-height: 3rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: linear-gradient(90deg, var(--highlight) 0%, var(--highlight-soft) 100%);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(99, 199, 223, 0.22);
+}
+
+.hero-glow {
+  position: absolute;
+  inset: auto -2.5rem -2.5rem auto;
+  width: 10rem;
+  height: 10rem;
+  background:
+    radial-gradient(circle, rgba(227, 61, 143, 0.62) 0%, rgba(99, 199, 223, 0.22) 34%, transparent 72%);
+}
+
+.form-card {
+  margin-top: 1rem;
+  border-radius: 2rem;
+  padding: 1.2rem;
+}
+
+.progress-copy,
+.history-header,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.eyebrow,
+.summary-label {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.progress-copy h2 {
+  margin: 0.45rem 0 0;
+  font-size: clamp(1.55rem, 6vw, 2.3rem);
+  line-height: 1.1;
+}
+
+.step-counter {
+  flex-shrink: 0;
+  min-width: 3.5rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(25, 26, 63, 0.06);
+  text-align: center;
+  font-weight: 700;
+}
+
+.progress-track {
+  height: 0.5rem;
+  margin: 1rem 0 1.4rem;
+  border-radius: 999px;
+  background: rgba(25, 26, 63, 0.08);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 20%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--highlight) 58%, var(--highlight-soft) 100%);
+  transition: width 220ms ease;
+}
+
+.field-wrap {
+  display: block;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.field-input {
+  width: 100%;
+  min-height: 4rem;
+  border: 1px solid var(--line);
+  border-radius: 1.45rem;
+  padding: 1rem 1.1rem;
+  background: rgba(248, 251, 255, 0.96);
+  color: var(--text);
+  font-size: 1.4rem;
+  font-weight: 700;
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.field-input:focus {
+  border-color: rgba(25, 26, 63, 0.35);
+  box-shadow: 0 0 0 4px rgba(99, 199, 223, 0.18);
+  transform: translateY(-1px);
+}
+
+.field-hint,
+.field-error,
+.history-copy {
+  margin: 0.75rem 0 0;
+  line-height: 1.5;
+}
+
+.field-error {
+  min-height: 1.5rem;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.actions {
+  margin-top: 1rem;
+}
+
+.primary-button,
+.ghost-button,
+.link-button {
+  border: 0;
+  cursor: pointer;
+}
+
+.primary-button,
+.ghost-button {
+  min-height: 3.7rem;
+  padding: 0.95rem 1.15rem;
+  border-radius: 1.2rem;
+  font-weight: 800;
+}
+
+.primary-button {
+  flex: 1;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-soft) 100%);
+  color: white;
+  box-shadow: 0 10px 26px rgba(25, 26, 63, 0.18);
+}
+
+.ghost-button {
+  min-width: 6.5rem;
+  background: rgba(25, 26, 63, 0.06);
+  color: var(--primary-soft);
+}
+
+.ghost-button[disabled] {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.summary-card,
+.status-card,
+.queue-card,
+.pending-list-card,
+.export-card,
+.history-card {
+  margin-top: 1rem;
+  border-radius: 1.5rem;
+  padding: 1rem 1.05rem;
+}
+
+.summary-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.summary-card strong,
+.queue-card strong,
+.pending-list-card strong,
+.export-card strong,
+.history-card strong {
+  display: block;
+  margin-top: 0.22rem;
+  font-size: 1rem;
+}
+
+.export-actions {
+  margin-top: 1rem;
+}
+
+.export-actions .ghost-button,
+.export-actions .primary-button {
+  flex: 1;
+}
+
+.status-card {
+  display: none;
+  border-color: rgba(22, 92, 53, 0.16);
+}
+
+.status-card.is-visible {
+  display: block;
+}
+
+.status-card.is-success {
+  background: rgba(226, 244, 233, 0.92);
+  color: var(--success);
+}
+
+.status-card.is-error {
+  background: rgba(252, 234, 233, 0.92);
+  color: var(--danger);
+}
+
+.link-button {
+  background: transparent;
+  color: var(--primary);
+  font-weight: 800;
+  padding: 0;
+}
+
+.pending-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.9rem 0 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pending-list li {
+  border-radius: 1.15rem;
+  padding: 0.85rem 0.95rem;
+  background: linear-gradient(180deg, rgba(245, 248, 255, 0.98) 0%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid rgba(25, 26, 63, 0.08);
+}
+
+.pending-name {
+  font-weight: 800;
+}
+
+.pending-meta {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.94rem;
+}
+
+.completion-stack p {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 380px) {
+  .app-shell {
+    padding-inline: 0.75rem;
+  }
+
+  .hero-card,
+  .form-card {
+    border-radius: 1.6rem;
+  }
+
+  .field-input {
+    font-size: 1.2rem;
+  }
+}

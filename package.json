@@ -1,0 +1,21 @@
+{
+  "name": "pressao-arterial-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App mobile-first para coleta de pressao arterial e envio para Google Sheets.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production",
+    "preview": "node server.js dist 4174"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^13.0.0",
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.0",
+    "mini-css-extract-plugin": "^2.9.0",
+    "webpack": "^5.99.8",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0"
+  }
+}

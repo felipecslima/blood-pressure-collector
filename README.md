@@ -1,0 +1,118 @@
+# Pressao Arterial
+
+# blood-pressure-collector
+
+App mobile-first em fluxo guiado para cadastro de pacientes e envio direto para Google Sheets, com fila offline, reenvio automatico e modo instalavel no celular.
+
+## Como rodar
+
+```bash
+npm start
+```
+
+Depois abra `http://localhost:4173`.
+
+## Build para publicacao
+
+```bash
+npm run build
+```
+
+Os arquivos prontos para publicar ficam em `dist/`.
+
+Para revisar exatamente a versao publicada:
+
+```bash
+npm run preview
+```
+
+Depois abra `http://localhost:4174`.
+
+## Como configurar o envio para Google Sheets
+
+Edite o objeto `GOOGLE_SHEETS_CONFIG` em [app.js](/Users/felipelima/work/pressao-arterial/app.js).
+
+Voce precisa preencher:
+
+- `appScriptUrl`: URL publicada do seu Google Apps Script Web App
+
+## Google Apps Script
+
+Crie um Apps Script vinculado a planilha e publique como `Web app` com acesso liberado para quem tiver o link. Use este codigo:
+
+```javascript
+function createJsonResponse(payload) {
+  return ContentService
+    .createTextOutput(JSON.stringify(payload))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet() {
+  return createJsonResponse({ ok: true, status: "online" });
+}
+
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Página1");
+  var data = JSON.parse(e.postData.contents);
+  var properties = PropertiesService.getDocumentProperties();
+  var recordKey = "record:" + data.recordId;
+
+  if (data.recordId && properties.getProperty(recordKey)) {
+    return createJsonResponse({ ok: true, duplicate: true, recordId: data.recordId });
+  }
+
+  sheet.appendRow([
+    data.dataHora,
+    data.empresa,
+    data.cpf,
+    data.nomePaciente,
+    data.pressaoSistolica,
+    data.pressaoDiastolica,
+    data.resumo
+  ]);
+
+  if (data.recordId) {
+    properties.setProperty(recordKey, new Date().toISOString());
+  }
+
+  return createJsonResponse({ ok: true, duplicate: false, recordId: data.recordId });
+}
+```
+
+Depois de atualizar o codigo, atualize a implantacao do Web App e mantenha a URL publicada em `GOOGLE_SHEETS_CONFIG.appScriptUrl`.
+
+## Fila e reenvio
+
+- Cada cadastro finalizado entra primeiro numa fila local salva no aparelho.
+- O app tenta enviar imediatamente.
+- Se a internet falhar ou o envio passar do tempo limite, o registro continua salvo na fila.
+- O usuario pode tocar em `Enviar pendentes` depois, ou o app reenviara automaticamente quando a conexao voltar.
+- O `recordId` impede duplicidade na planilha caso o mesmo cadastro seja reenviado.
+- O CPF e exibido com mascara na tela, mas e salvo e enviado apenas com numeros.
+- Se a pagina for recarregada, o rascunho atual, a fila pendente e os registros locais sao restaurados automaticamente no mesmo aparelho.
+- O app agora espera uma resposta JSON de confirmacao do servidor antes de tirar um cadastro da fila.
+
+## Alternativa manual em CSV
+
+- Todo cadastro tambem fica salvo localmente no celular.
+- O usuario pode gerar um CSV a qualquer momento com todos os registros salvos.
+- O CSV pode ser compartilhado pelo menu nativo do aparelho para WhatsApp, Slack, Mensagens e apps compativeis.
+- Se o compartilhamento por arquivo nao estiver disponivel, o app ainda permite copiar o CSV como texto ou baixar o arquivo.
+- O CPF no CSV tambem sai sem mascara.
+- Existe exportacao separada apenas dos cadastros pendentes de confirmacao.
+
+## Instalar no celular
+
+- O projeto inclui `manifest.webmanifest`, icones e `service-worker.js`.
+- Em navegadores compativeis, o botao `Instalar app` aparece automaticamente.
+- Depois de instalado, o app abre em tela cheia e mantem os arquivos basicos em cache para uso mais confiavel no celular.
+
+## Colunas esperadas
+
+- Data Hora
+- Empresa
+- CPF
+- NomePaciente
+- Pressao Sistolica
+- Pressao Diastolica
+- Resumo Sisto/Diast

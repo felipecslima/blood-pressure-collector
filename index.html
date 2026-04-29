@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Pressao Arterial</title>
+    <meta
+      name="description"
+      content="Cadastro mobile-first de pressao arterial com fluxo guiado, fila offline e envio para Google Sheets."
+    />
+    <meta name="theme-color" content="#191a3f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Pressao" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon-192.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon-192.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero-card" id="heroCard">
+        <div class="hero-copy">
+          <span class="hero-chip">Coleta guiada</span>
+          <h1>Pressao arterial sem atrito para uso no celular.</h1>
+          <p>
+            Uma resposta por vez, menos erro de digitacao e cadastro rapido para cada paciente.
+          </p>
+          <button type="button" class="install-button" id="installButton" hidden>
+            Instalar app
+          </button>
+        </div>
+        <div class="hero-glow" aria-hidden="true"></div>
+      </header>
+
+      <main class="form-card">
+        <div class="progress-copy">
+          <div>
+            <p class="eyebrow" id="stepLabel">Configuracao inicial</p>
+            <h2 id="stepTitle">Qual e o nome da empresa?</h2>
+          </div>
+          <span class="step-counter" id="stepCounter">1/5</span>
+        </div>
+
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <form id="wizardForm" novalidate>
+          <label class="field-wrap" for="stepInput">
+            <span class="field-label" id="fieldLabel">Empresa</span>
+            <input
+              id="stepInput"
+              class="field-input"
+              autocomplete="off"
+              autocapitalize="words"
+              spellcheck="false"
+            />
+          </label>
+
+          <p class="field-hint" id="fieldHint">
+            Esse nome sera reaproveitado para todos os pacientes ate voce trocar.
+          </p>
+
+          <p class="field-error" id="fieldError" aria-live="polite"></p>
+
+          <div class="actions">
+            <button type="button" class="ghost-button" id="backButton">Voltar</button>
+            <button type="submit" class="primary-button" id="nextButton">Continuar</button>
+          </div>
+        </form>
+
+        <section class="summary-card" id="sessionSummary" aria-live="polite">
+          <div>
+            <p class="summary-label">Empresa atual</p>
+            <strong id="companyValue">Nao definida</strong>
+          </div>
+          <div>
+            <p class="summary-label">Pacientes enviados</p>
+            <strong id="submittedCount">0</strong>
+          </div>
+          <div>
+            <p class="summary-label">Na fila</p>
+            <strong id="queueCount">0</strong>
+          </div>
+          <div>
+            <p class="summary-label">Salvos no celular</p>
+            <strong id="deviceCount">0</strong>
+          </div>
+        </section>
+
+        <section class="status-card" id="statusCard" aria-live="polite"></section>
+
+        <section class="queue-card" aria-live="polite">
+          <div class="history-header">
+            <div>
+              <p class="summary-label">Fila de envio</p>
+              <strong id="queueStatus">Sem registros pendentes</strong>
+            </div>
+            <button type="button" class="link-button" id="retryQueueButton">
+              Enviar pendentes
+            </button>
+          </div>
+          <p class="history-copy" id="queueHint">
+            Se a internet cair ou o envio demorar, o cadastro fica salvo no aparelho para reenviar depois.
+          </p>
+          <div class="actions export-actions">
+            <button type="button" class="ghost-button" id="downloadPendingCsvButton">
+              Baixar pendentes
+            </button>
+            <button type="button" class="primary-button" id="sharePendingCsvButton">
+              Compartilhar pendentes
+            </button>
+          </div>
+        </section>
+
+        <section class="pending-list-card" aria-live="polite">
+          <div class="history-header">
+            <div>
+              <p class="summary-label">Pendentes agora</p>
+              <strong id="pendingPreviewTitle">Nenhum cadastro aguardando envio</strong>
+            </div>
+          </div>
+          <ul class="pending-list" id="pendingList"></ul>
+        </section>
+
+        <section class="export-card" aria-live="polite">
+          <div class="history-header">
+            <div>
+              <p class="summary-label">Backup manual</p>
+              <strong id="exportStatus">Nenhum CSV gerado ainda</strong>
+            </div>
+            <button type="button" class="link-button" id="downloadCsvButton">
+              Baixar CSV
+            </button>
+          </div>
+          <p class="history-copy" id="exportHint">
+            Compartilhe um CSV com todos os registros salvos no celular por WhatsApp, Slack, Mensagens ou outro app.
+          </p>
+          <div class="actions export-actions">
+            <button type="button" class="ghost-button" id="copyCsvButton">Copiar CSV</button>
+            <button type="button" class="primary-button" id="shareCsvButton">Compartilhar CSV</button>
+          </div>
+        </section>
+
+        <section class="history-card" aria-live="polite">
+          <div class="history-header">
+            <div>
+              <p class="summary-label">Ultimo envio</p>
+              <strong id="lastPatient">Nenhum paciente ainda</strong>
+            </div>
+            <button type="button" class="link-button" id="resetCompanyButton">
+              Trocar empresa
+            </button>
+          </div>
+          <p class="history-copy" id="lastResult">
+            Depois do envio, o app volta automaticamente para o CPF do proximo paciente.
+          </p>
+        </section>
+      </main>
+    </div>
+
+    <template id="completionTemplate">
+      <div class="completion-stack">
+        <span class="completion-badge">Enviado</span>
+        <h3>Paciente registrado com sucesso.</h3>
+        <p id="completionMessage"></p>
+      </div>
+    </template>
+  </body>
+</html>
